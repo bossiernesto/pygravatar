@@ -8,7 +8,6 @@ class ProxiedTransport(xmlrpclib.Transport):
         super(ProxiedTransport)
 
     def set_proxy(self, proxy):
-        self.checkProxy(proxy)
         self.proxy = proxy
     def make_connection(self, host):
         self.realhost = host
