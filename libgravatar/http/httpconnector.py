@@ -21,9 +21,6 @@ class HttpConnector():
         """Normalize URL and clean it"""
         return urllib2.quote(url.encode('utf-8'), safe="%/:=&?~#+!$,;'@()*[]")
 
-    def getImage(self,url):
-        raw=self.get(url)
-
 
 
 

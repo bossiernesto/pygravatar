@@ -1,5 +1,6 @@
 import re,hashlib
 from . import exceptions as e
+from http.httpconnector import HttpConnector
 
 class Gravatar:
 
@@ -42,7 +43,8 @@ class Gravatar:
         except Exception:
             raise e.PyGravatarConnectException('Couldn\'t connect with email'+self.email)
 
-
-
-
+    def request_image(self):
+        AVATAR_URL='http://www.gravatar.com/avatar/{1}'.format(self.getHash())
+        httpConnector=HttpConnector(AVATAR_URL)
+        img=httpConnector.get(AVATAR_URL)
 
