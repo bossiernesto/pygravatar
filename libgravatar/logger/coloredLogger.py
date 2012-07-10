@@ -12,7 +12,7 @@ class AbstractLogger(logging.Logger):
 
 # Custom logger class with multiple destinations
 class ColoredLogger(AbstractLogger):
-    FORMAT = "[$BOLD%(name)-s$RESET][%(levelname)-s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d) at "
+    FORMAT = "[$BOLD%(name)-s$RESET][%(levelname)-s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d) at %(asctime)-15s"
     COLOR_FORMAT = c.formatter_message(FORMAT, True)
     def __init__(self, name):
         logging.Logger.__init__(self, name, logging.DEBUG)
