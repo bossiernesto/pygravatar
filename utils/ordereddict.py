@@ -172,6 +172,21 @@ class OrderedDict(dict, MutableMapping):
             previous[NEXT] = next
         else:
             self.first_node = next
+
+    def reverse_dictionary(self):
+        newdict=OrderedDict((v,k) for k, v in self.iteritems())
+        self.clear()
+        for (key,value) in newdict.iteritems():
+            self.__setitem__(key,value)
+        self.update()
+
+    def merge(self,oDict):
+        if not isinstance(oDict,dict):
+            raise TypeError
+        auxdict=OrderedDict(OrderedDict(oDict).items()+self.items())
+        self.clear()
+        for (key,value) in auxdict.iteritems():
+            self.__setitem__(key,value)
         ################################################################
 
 
