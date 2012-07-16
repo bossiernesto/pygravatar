@@ -1,9 +1,9 @@
-## {{{ http://code.activestate.com/recipes/577826/ (r1)
 # ordereddict.py
 # A dictionary that remembers insertion order
 # Tested under Python 2.7 and 2.6.6 only
 #
 # Copyright (C) 2011 by Lucio Santi <lukius at gmail dot com>
+## Copyright (C) 2012 by Ernesto Bossi <bossi dot ernestog at gmail dot com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
