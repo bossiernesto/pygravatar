@@ -173,20 +173,33 @@ class OrderedDict(dict, MutableMapping):
         else:
             self.first_node = next
 
-    def reverse_dictionary(self):
-        newdict=OrderedDict((v,k) for k, v in self.iteritems())
+    def getReverse(self):
+        return OrderedDict((v,k) for k, v in self.iteritems())
+
+    def reverse_dictionary(self,overwrite=False):
+        if overwrite:
+            self._reverse_dictionary()
+            return
+        return self.getReverse()
+
+    def _reverse_dictionary(self):
+        newdict=self.getReverse()
         self.clear()
         for (key,value) in newdict.iteritems():
             self.__setitem__(key,value)
         self.update()
 
     def merge(self,oDict):
-        if not isinstance(oDict,dict):
+        if not isinstance(oDict,(dict,OrderedDict)):
             raise TypeError
         auxdict=OrderedDict(OrderedDict(oDict).items()+self.items())
         self.clear()
         for (key,value) in auxdict.iteritems():
             self.__setitem__(key,value)
+
+    def keylist(self, keys, value):
+        for key in keys:
+            self[key] = value
         ################################################################
 
 

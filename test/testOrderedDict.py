@@ -26,5 +26,5 @@ class testOrderedDict(unittest.TestCase):
         self.assertEqual(4,len(self.dictionary))
 
     def testInverse(self):
-        self.dictionary.reverse_dictionary()
+        self.dictionary.reverse_dictionary(overwrite=True)
         self.assertEqual(4,self.dictionary.__getitem__("aa"))
