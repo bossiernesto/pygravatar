@@ -1,5 +1,5 @@
+from libgravatar.const import const
 from utils.ordereddict import OrderedDict
-import const
 
 # ==== Errors ====
 #
