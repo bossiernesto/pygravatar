@@ -24,7 +24,3 @@ const.ERRORS={7:'Use secure.gravatar.com',
 RATING=OrderedDict({-1:'unknown',0:'g',1:'pg',2:'r',3:'x'})
 RATING.merge(RATING.reverse_dictionary())
 const.rating=RATING
-
-if __name__ == '__main__':
-    print const.ERRORS
-    print const.rating
