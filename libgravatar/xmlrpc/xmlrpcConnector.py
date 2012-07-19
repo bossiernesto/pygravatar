@@ -1,5 +1,10 @@
 import xmlrpclib,re,proxyTransport
 from ..exceptions import ProxyFormatException
+from utils.ordereddict import OrderedDict
+import const.PyGravConst as c
+
+
+GRAVATAR_ERRORS=c.ERRORS
 
 class xmlRpcConnector():
     """rpcUrl [,options] -> a logical connection to an XML-RPC server
@@ -29,14 +34,14 @@ class xmlRpcConnector():
         if regex.match(proxy) is None:
             raise ProxyFormatException('Invalid proxy configuration format, should be like host:port@user:password')
 
-    def call(self,name,*args,**kwargs):
+    def call(self,name,api,*args,**kwargs):
         """This function is used to call any method provided by the Gravatar api"""
         try:
-            arguments=kwargs
+            auth=api.getAuthToken()#get Authentication tokens
+            arguments=OrderedDict(kwargs).merge(auth)
             return getattr(self.rpc,name)(*arguments)
-        except Exception,e:
-            pass
-
+        except Fault as fault:
+            raise GRAVATAR_ERRORS.get(fault.faultCode, xmlrpclib.ServerProxy.UnknownError)(fault.faultString)
 
 
 
