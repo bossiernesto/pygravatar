@@ -2,14 +2,13 @@ import re,hashlib,exceptions as e,const.PyGravConst as c
 from logger.coloredLogger import ColoredLogger
 from http.httpconnector import HttpConnector
 from xmlrpc.xmlrpcConnector import xmlRpcConnector
-import cache
+import cache,base64
 
 APIKEY = 'apikey'
 PASSWORD='password'
 GRAVATAR_PATH='/xmlrpc?user='
 GRAVATAR_HOST="https://secure.gravatar.com"
 GRAVATAR_RATING=c.rating
-GRAVATAR_ERRORS=c.ERRORS
 
 class Gravatar:
 
@@ -23,7 +22,6 @@ class Gravatar:
         if force_http:
             GRAVATAR_HOST.replace('https','http')
         self.logger=ColoredLogger('PyGravatar')
-        self.cache=None
         self.options=options
         self.buildAuthKeys(options) #builds auth attribute from options dictionary
 
@@ -47,7 +45,8 @@ class Gravatar:
     #===================================================================================
     #                               API Methods
     #===================================================================================
-    def grav_exists(self):
+    @cache.Cache()
+    def grav_exists(self,hashes):
         """grav.exists - check whether a hash has a gravatar
             @param  $args['hashes'] an array of hashes to check
             @param	$args['apikey'] || $args[PASSWORD] for authentication
@@ -56,6 +55,7 @@ class Gravatar:
             )"""
         pass
 
+    @cache.Cache()
     def grav_addesses(self):
         """grav.addresses - get a list of addresses for this account
             @param  $args['apikey'] || $args[PASSWORD] for authentication
@@ -80,24 +80,33 @@ class Gravatar:
             )"""
         pass
 
-    def grav_saveData(self):
+    def grav_saveData(self,dataIn,ratingIn):
         """grav.saveData - Save binary image data as a userimage for this account
         @param  (string)$args['data'] a base64_encode()d image
         @param  (int)$args['rating'] 0:g, 1:pg, 2:r, 3:x
         @param  $args['apikey'] || $args[PASSWORD] for authentication
         @return (bool)false on failure, (string)userimage on success
         """
-        pass
+        encoded=base64.encodestring(dataIn)
+        encoded_rating=self.getRating(ratingIn)
+        userimage=self.rpc.call('saveData',self,data=encoded,rating=encoded_rating)
+        if not userimage:
+            raise PyGravException('')
+        return userimage
 
-    def grav_saveUrl(self):
+
+    def grav_saveUrl(self,imageUrl,Rating):
         """grav.saveUrl - Read an image via its URL and save that as a userimage for this account
         @param  (string)$args['url'] a full url to an image
         @param  (int)$args['rating'] 0:g, 1:pg, 2:r, 3:x
         @param  $args['apikey'] || $args[PASSWORD] for authentication
         @return (bool)false on failure, (string)userimage on success"""
-        pass
+        id=self.rpc.call('saveUrl',self,image=imageUrl,rating=self.getRating(Rating))
+        if not id:
+            raise PyGravException('')
+        return id
 
-    def grav_useUserImage(self):
+    def grav_useUserImage(self,userimageID,addresses):
         """grav.useUserimage - use a userimage as a gravatar for one of more addresses on this account
             @param  (string)$args['userimage'] The userimage you wish to use
             @param  (array)$args['addresses'] A list of the email addresses you wish to use this userimage for
@@ -105,31 +114,31 @@ class Gravatar:
             @return array(
                 address => (bool)status
             )"""
-        pass
+        return self.check_address_return(self.rpc.call('useUserimage',self,userimage=userimageID,addresses=addresses))
 
-    def grav_removeImage(self):
+    def grav_removeImage(self,addresses):
         """grav.removeImage - remove the userimage associated with one or more email addresses
             @param  (array)$args['addresses'] A list of the email addresses you wish to use this userimage for
             @param  $args['apikey'] || $args[PASSWORD] for authentication
             @return array(
                 address => (bool)status
             )"""
-        pass
+        return  self.check_address_return(self.rpc.call('removeImage',self,addresses=addresses))
 
-    def grav_deleteUserImage(self):
+    def grav_deleteUserImage(self,userimageID):
         """grav.deleteUserimage - remove a userimage from the account and any email addresses with which it is associated
             @param  (string)$args['userimage'] The userimage you wish to remove from the account
             @param  $args['apikey'] || $args[PASSWORD] for authentication
             @return (bool)status
         """
-
+        return bool(self.rpc.call('deleteUserimage',self,userimage=userimageID))
 
     def grav_test(self):#TODO: move this method to the GravatarTest.py
         """grav.test - a test function
             @param  $args['apikey'] || $args[PASSWORD] for authentication
             @return (mixed)$args
         """
-        pass
+        return self.rpc.call('test',self)['response']
 
     #===================================================================================
     #                               Auxiliary Methods
@@ -173,3 +182,14 @@ class Gravatar:
     def buildAuthKeys(self,options):
         filtered_options=self._filterAuthKeys(options)
         self.auth=self.normalizeAuthOptions(filtered_options)
+
+    def getAuthToken(self):
+        if self.auth is None:
+            self.buildAuthKeys(self.options)
+        return self.auth
+
+    def check_address_return(self,responses):
+        for email,status in responses.iteritems():
+            if not status:
+                raise PyGravException('Failed call to {0}'.format('removeImage'))
+        return responses
