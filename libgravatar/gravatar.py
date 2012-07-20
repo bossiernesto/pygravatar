@@ -160,14 +160,14 @@ class Gravatar:
     def getUrl(self):
         if self.hash is None:
             self.hash=self.getHash()
-        return '{1}{2}{3}'.format(GRAVATAR_HOST,GRAVATAR_PATH,self.hash)
+        return '{0}{1}{2}'.format(GRAVATAR_HOST,GRAVATAR_PATH,self.hash)
 
     def get_avatar_url(self):
-        return '{1}/avatar/{2}'.format(GRAVATAR_HOST,self.getHash())
+        return '{0}/avatar/{1}'.format(GRAVATAR_HOST,self.getHash())
 
     def getAvatarTag(self):
         """Return avatar url inside an img tag"""
-        return "<img src=\"{1}\"/>".format(self.get_avatar_url)
+        return "<img src=\"{0}\"/>".format(self.get_avatar_url)
     
     def _filterAuthKeys(self,options): #filter method
         return dict([(k,v) for k,v in options.iteritems() if k in (PASSWORD,'api','apikey','api_key','pass')])
